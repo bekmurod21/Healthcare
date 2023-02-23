@@ -1,0 +1,12 @@
+G:\HealthCare.Presentation\HealthCare.Domain\bin\Debug\net6.0\HealthCare.Domain.deps.json
+G:\HealthCare.Presentation\HealthCare.Domain\bin\Debug\net6.0\HealthCare.Domain.dll
+G:\HealthCare.Presentation\HealthCare.Domain\bin\Debug\net6.0\HealthCare.Domain.pdb
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.csproj.AssemblyReference.cache
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.GeneratedMSBuildEditorConfig.editorconfig
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.AssemblyInfoInputs.cache
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.AssemblyInfo.cs
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.csproj.CoreCompileInputs.cache
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.dll
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\refint\HealthCare.Domain.dll
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\HealthCare.Domain.pdb
+G:\HealthCare.Presentation\HealthCare.Domain\obj\Debug\net6.0\ref\HealthCare.Domain.dll
