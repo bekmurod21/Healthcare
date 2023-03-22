@@ -357,7 +357,8 @@
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
           "AutoMapper": "12.0.1",
-          "HealthCare.Data": "1.0.0"
+          "HealthCare.Data": "1.0.0",
+          "Newtonsoft.Json": "13.0.3"
         },
         "compile": {
           "bin/placeholder/HealthCare.Service.dll": {}

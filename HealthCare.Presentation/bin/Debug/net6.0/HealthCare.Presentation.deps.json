@@ -218,7 +218,8 @@
       "HealthCare.Service/1.0.0": {
         "dependencies": {
           "AutoMapper": "12.0.1",
-          "HealthCare.Data": "1.0.0"
+          "HealthCare.Data": "1.0.0",
+          "Newtonsoft.Json": "13.0.3"
         },
         "runtime": {
           "HealthCare.Service.dll": {}

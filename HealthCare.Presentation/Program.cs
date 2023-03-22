@@ -32,17 +32,17 @@
 //    Console.WriteLine(user.FirstName);
 //}
 
-using HealthCare.Service.API;
-using Newtonsoft.Json;
+using HealthCare.Service.Interfaces;
+using HealthCare.Service.Services;
 
-using var client = new HttpClient();
-HttpResponseMessage response = await client.GetAsync("https://reqres.in/api/users?page=2");
+IApiService apiService = new ApiService();
 
+var entities = (await apiService.GetAllUsersInformationFromApiAsync()).Result;
 
-if (response.IsSuccessStatusCode)
+foreach(var entity in entities)
 {
-    var json = await response.Content.ReadAsStringAsync();
-    var courses = JsonConvert.DeserializeObject<IEnumerable<Users>>(json);
-    foreach (var course in courses)
-        Console.WriteLine(course.LastName + ". " + course.FirstName);
+    foreach (var e1 in entity.Info)
+    {
+        Console.WriteLine(e1.FirstName);
+    }
 }

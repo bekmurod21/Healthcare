@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace HealthCare.Service.API
+namespace HealthCare.Service.ApiDtos
 {
-    public class Users
+    public class Info
     {
         [JsonProperty("first_name")]
         public string FirstName { get; set; }
