@@ -12,6 +12,8 @@ public class MappingProfile: Profile
         CreateMap<UserDto,User>().ReverseMap();
         CreateMap<FoodDto,FoodPower>().ReverseMap();
         CreateMap<FoodForCreationDto,FoodPower>().ReverseMap();
+        CreateMap<ExerciseDto, Exercise>().ReverseMap();
+        CreateMap<ExerciseForCreationDto, Exercise>().ReverseMap();
     }
 
 }

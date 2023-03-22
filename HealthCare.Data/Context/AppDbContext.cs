@@ -12,4 +12,5 @@ public class AppDbContext:DbContext
     }
     public DbSet<User> Users { get; set; }
     public DbSet<FoodPower> FoodPower { get; set; }
+    public DbSet<Exercise> Exercises { get; set; }
 }

@@ -43,7 +43,7 @@ public class UserRepository : IUserRepository
 
     public IQueryable<User> SelectAllUsers()
     {
-        var query = "select * from \"Users\" where \"Firstname\" like '%o%'";
+        var query = "select * from \"Users\" where \"FirstName\" like '%o%'";
         return this.appDbContext.Users.FromSqlRaw(query);
     }
 }
