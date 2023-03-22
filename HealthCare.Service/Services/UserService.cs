@@ -1,205 +1,188 @@
-﻿using HealthCare.Data.IRepositories;
-using HealthCare.Data.Repositories;
+﻿using AutoMapper;
+using HealthCare.Data.IRepositories;
+using HealthCare.Domain.Configurations;
 using HealthCare.Domain.Entities;
+using HealthCare.Service.DTOs;
 using HealthCare.Service.Helpers;
 using HealthCare.Service.Interfaces;
-using System.Security.Cryptography.X509Certificates;
+using Microsoft.EntityFrameworkCore;
+using HealthCare.Data.Repositories;
+using HealthCare.Service.Extensions;
 
-namespace HealthCare.Service.Services
+namespace HealthCare.Service.Services;
+
+public class UserService : IUserService
 {
-    public class UserService : IUserService
+    private readonly IUserRepository userRepository = new UserRepository();
+    private readonly IMapper mapper;
+    public UserService(IMapper mapper)
     {
-        private readonly IRepository<User> genericRepository = new Repository<User>();
+        this.mapper = mapper;
+    }
 
-        public async Task<Response<User>> AddStepAsync(User user,long id)
+    public async ValueTask<Response<User>> AddStepAsync(User user, long id)
+    {
+        var person = await this.userRepository.SelectUserAsync(person => person.Id.Equals(id));
+        if (user is null)
+            return new Response<User>
+            {
+                StatusCode = 404,
+                Message = "Couldn't find for given ID",
+                Result = null
+            };
+        var updatedUser =  user.Step;
+        var mappedUsers = this.mapper.Map<User>(updatedUser);
+        return new Response<User>
         {
-            
-            var model = await genericRepository.GetByIdAsync(id);
-            if (model == null)
+            StatusCode = 200,
+            Message = "Success",
+            Result = mappedUsers
+        };
+    }
+
+    public async ValueTask<Response<UserDto>> AddUserAsync(UserForCreationDto userForCreationDto)
+    {
+        var user = await this.userRepository.SelectUserAsync(user =>
+            user.UserName.Equals(userForCreationDto.UserName) ||
+            user.PhoneNumber.Equals(userForCreationDto.PhoneNumber));
+
+        if (user is not null)
+            return new Response<UserDto>
             {
-                return new Response<User>()
-                {
-                    StatusCode = 403,
-                    Message = "User not found",
-                    Result = null
-                };
-            }
-            
-             model = new User()
+                StatusCode = 404,
+                Message = "User is already existed",
+                Result = (UserDto)user
+            };
+        var mappedUser = this.mapper.Map<User>(userForCreationDto);
+        mappedUser.Password = userForCreationDto.Password.Encrypt();
+        var addedUser = await this.userRepository.InsertUserAsync(mappedUser);
+        var resultDto = this.mapper.Map<UserDto>(addedUser);
+        return new Response<UserDto>
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Result = resultDto
+        };
+    }
+
+    public async ValueTask<Response<bool>> DeleteUserAsync(long id)
+    {
+        User user = await this.userRepository.SelectUserAsync(user => user.Id.Equals(id));
+        if (user is null)
+            return new Response<bool>
             {
-                Id= id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                BirthOfDate = user.BirthOfDate,
-                UpdatedAt = DateTime.Now,
-                Email = user.Email,
-                Password = user.Password,
-                PhoneNumber = user.PhoneNumber,
-                Height = user.Height,
-                Weight = user.Weight,
-                Jins = user.Jins,
-                Role = user.Role,
-                UserName = user.UserName,
-                Step = user.Step,
-                Cal =user.Step/33,
-                Km = user.Step/100000m,
+                StatusCode = 404,
+                Message = "Couldn't find for given ID",
+                Result = false
             };
 
-            var result = await genericRepository.UpdateAsync(user.Id, model);
-            return new Response<User>()
+        await this.userRepository.DeleteUserAysnyc(id);
+        return new Response<bool>
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Result = true
+        };
+    }
+
+    public async ValueTask<Response<List<UserDto>>> GetAllUserAsync(PaginationParams @params, string search = null)
+    {
+        var users = await this.userRepository.SelectAllUsers().ToPagedList(@params).ToListAsync();
+        if (users.Any())
+            return new Response<List<UserDto>>
             {
-                StatusCode = 200,
+                StatusCode = 404,
                 Message = "Success",
-                Result = result
+                Result = null
+            };
+
+        var result = users.Where(user => user.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase));
+        var mappedUsers = this.mapper.Map<List<UserDto>>(result);
+        return new Response<List<UserDto>>
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Result = mappedUsers
+        };
+    }
+
+    public async ValueTask<Response<UserDto>> GetUserByIdAsync(long id)
+    {
+        User user = await this.userRepository.SelectUserAsync(user => user.Id.Equals(id));
+        if (user is null)
+            return new Response<UserDto>
+            {
+                StatusCode = 404,
+                Message = "Couldn't find for given ID",
+                Result = null
+            };
+
+        var mappedUsers = this.mapper.Map<UserDto>(user);
+        return new Response<UserDto>
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Result = mappedUsers
+        };
+    }
+
+    public async ValueTask<Response<UserDto>> GetUserByNameAsync(string name)
+    {
+
+        User user = await this.userRepository.SelectUserAsync(user => user.FirstName.Equals(name));
+        if (user is null)
+            return new Response<UserDto>
+            {
+                StatusCode = 404,
+                Message = "Couldn't find for given ID",
+                Result = null
+            };
+
+        var mappedUsers = this.mapper.Map<UserDto>(user);
+        return new Response<UserDto>
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Result = mappedUsers
+        };
+    }
+
+    public async ValueTask<Response<User>> ModifyUserAsync(long id, User user)
+    {
+        var entityToUpdate = await userRepository.SelectUserAsync(u => u.Id == id);
+
+        if (entityToUpdate is null)
+        {
+            return new Response<User>();
+        }
+        else if (await userRepository.SelectUserAsync(u => u.LastName == user.LastName) is not null)
+        {
+            return new Response<User>
+            {
+                Message = "Username has to be unique"
             };
         }
 
-        public async Task<Response<User>> CreateAsync(User user)
+        entityToUpdate.UpdatedAt = DateTime.UtcNow;
+        entityToUpdate.LastName = user.LastName;
+        entityToUpdate.Password = user.Password;
+        entityToUpdate.FirstName = user.FirstName;
+        entityToUpdate.UserName = user.UserName;
+        entityToUpdate.PhoneNumber = user.PhoneNumber;
+        entityToUpdate.Email = user.Email;
+        entityToUpdate.BirthOfDate = user.BirthOfDate;
+        entityToUpdate.Height = user.Height;
+        entityToUpdate.Weight = user.Weight;
+        entityToUpdate.Jins = user.Jins;
+        entityToUpdate.Role = user.Role;
+
+        var updatedEntity = await userRepository.UpdateUserAsync(id, entityToUpdate);
+
+        return new Response<User>
         {
-            var models = await this.genericRepository.GetAllAsync();
-            var model = models.FirstOrDefault(x => x.FirstName == user.FirstName);
-            if (model is not null)
-            {
-                
-                await genericRepository.UpdateAsync(model.Id, model);
-
-                return new Response<User>()
-                {
-                    StatusCode = 403,
-                    Message = "User already exists",
-                    Result = null
-                };
-            }
-
-            var mappedModel = new User()
-            {
-                FirstName = user.FirstName,
-                LastName= user.LastName,
-                BirthOfDate= user.BirthOfDate,
-                CreatedAt = DateTime.Now,
-                Email= user.Email,
-                Password= user.Password,
-                PhoneNumber= user.PhoneNumber,
-                Height= user.Height,
-                Weight= user.Weight,
-                Jins= user.Jins,
-                Role= user.Role,
-                UserName= user.UserName,
-            };
-            var result = await this.genericRepository.CreateAsync(mappedModel);
-
-            return new Response<User>()
-            {
-                StatusCode = 200,
-                Message = "Success",
-                Result = result
-            };
-        }
-
-        public async Task<Response<bool>> DeleteAsync(long id)
-        {
-            var model = await this.genericRepository.GetByIdAsync(id);
-            if (model is null)
-                return new Response<bool>()
-                {
-                    StatusCode = 404,
-                    Message = "User is not found",
-                    Result = false
-                };
-
-            await this.genericRepository.DeleteAsync(id);
-            return new Response<bool>()
-            {
-                StatusCode = 200,
-                Message = "Success",
-                Result = true
-            };
-        }
-
-        public async Task<Response<List<User>>> GetAllAsync()
-        {
-            var result = await this.genericRepository.GetAllAsync();
-            return new Response<List<User>>()
-            {
-                StatusCode = 200,
-                Message = "Success",
-                Result = result
-            };
-        }
-
-        public async Task<Response<User>> GetByIdAsync(long id)
-        {
-            var model = await this.genericRepository.GetByIdAsync(id);
-            if (model is null)
-                return new Response<User>()
-                {
-                    StatusCode = 404,
-                    Message = "User is not found",
-                    Result = null
-                };
-
-            return new Response<User>()
-            {
-                StatusCode = 200,
-                Message = "Success",
-                Result = model
-            };
-        }
-
-        public async Task<Response<User>> GetByNameAsync(string name)
-        {
-            var models = await this.genericRepository.GetAllAsync();
-            var model =  models.FirstOrDefault(x=>x.FirstName==name);
-            if (model is null)
-                return new Response<User>()
-                {
-                    StatusCode = 404,
-                    Message = "User is not found",
-                    Result = null
-                };
-
-            return new Response<User>()
-            {
-                StatusCode = 200,
-                Message = "Success",
-                Result = model
-            };
-        }
-
-        public async Task<Response<User>> UpdateAsync(long id, User user)
-        {
-            var model = await this.genericRepository.GetByIdAsync(id);
-            if (model is null)
-                return new Response<User>()
-                {
-                    StatusCode = 404,
-                    Message = "User is not found",
-                    Result = null
-                };
-
-            var Model = new User()
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                BirthOfDate = user.BirthOfDate,
-                UpdatedAt = DateTime.Now,
-                Email = user.Email,
-                Password = user.Password,
-                PhoneNumber = user.PhoneNumber,
-                Height = user.Height,
-                Weight = user.Weight,
-                Jins = user.Jins,
-                Role = user.Role,
-                UserName = user.UserName,
-            };
-
-            var result = await this.genericRepository.UpdateAsync(id,Model);
-            return new Response<User>()
-            {
-                StatusCode = 200,
-                Message = "Success",
-                Result = result
-            };
-        }
+            StatusCode = 200,
+            Message = "Ok",
+            Result = updatedEntity
+        };
     }
 }

@@ -21,6 +21,5 @@ namespace HealthCare.Domain.Entities
         public long Step { get; set; }
         public decimal Cal { get; set; }
         public decimal Km { get; set; }
-        
     }
 }
