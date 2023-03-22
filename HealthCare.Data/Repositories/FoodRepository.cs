@@ -30,7 +30,7 @@ public class FoodRepository : IFoodRepository
 
     public IQueryable<FoodPower> SelectAllFood()
     {
-        var query = "select * from \"FoodPower\" where \"FoodName\" like '%o%'";
+        var query = "select * from \"FoodPower\"";
         return this.appDbContext.FoodPower.FromSqlRaw(query);
     }
 

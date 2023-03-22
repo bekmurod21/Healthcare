@@ -31,7 +31,7 @@ namespace HealthCare.Data.Repositories
 
         public IQueryable<Exercise> SelectAllExercise()
         {
-            var query = "select * from \"Exercise\" where \"ExerciseName\" like '%o%'";
+            var query = "select * from \"Exercise\"";
             return this.appDbContext.Exercises.FromSqlRaw(query); ;
         }
 

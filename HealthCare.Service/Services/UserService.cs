@@ -19,7 +19,6 @@ public class UserService : IUserService
     {
         this.mapper = mapper;
     }
-
     public async ValueTask<Response<User>> AddStepAsync(User user, long id)
     {
         var person = await this.userRepository.SelectUserAsync(person => person.Id.Equals(id));

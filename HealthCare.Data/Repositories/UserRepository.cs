@@ -41,9 +41,9 @@ public class UserRepository : IUserRepository
     public async ValueTask<User> SelectUserAsync(Predicate<User> predicate) =>
         await this.appDbContext.Users.FirstOrDefaultAsync(user => predicate(user));
 
-    public IQueryable<User> SelectAllUsers()
+    public  IQueryable<User> SelectAllUsers()
     {
-        var query = "select * from \"Users\" where \"FirstName\" like '%o%'";
-        return this.appDbContext.Users.FromSqlRaw(query);
+        var query = "select * from \"Users\"";
+        return  this.appDbContext.Users.FromSqlRaw(query);
     }
 }
